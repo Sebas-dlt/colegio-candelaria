@@ -75,7 +75,7 @@ export default function Navbar() {
           </Link>
 
           {/* Links desktop */}
-          <ul className="hidden items-center gap-0.5 xl:flex" role="menubar">
+          <ul className="hidden items-center gap-0.5 lg:flex" role="menubar">
             {NAV_LINKS.map((link) => (
               <li key={link.href} role="none">
                 <Link
@@ -90,7 +90,7 @@ export default function Navbar() {
           </ul>
 
           {/* Acciones desktop */}
-          <div className="hidden items-center gap-2 xl:flex">
+          <div className="hidden items-center gap-2 lg:flex">
             <a
               href="tel:+573042026613"
               className="flex items-center gap-1.5 rounded-md px-2.5 py-2 text-[12px] font-medium text-neutral-500 transition-colors hover:text-primary-700"
@@ -115,7 +115,7 @@ export default function Navbar() {
             aria-expanded={menuOpen}
             aria-controls="menu-movil"
             aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
-            className="flex h-10 w-10 items-center justify-center rounded-lg text-neutral-700 transition-colors hover:bg-neutral-100 xl:hidden"
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-neutral-700 transition-colors hover:bg-neutral-100 lg:hidden"
           >
             {menuOpen ? <IconX size={22} /> : <IconMenu2 size={22} />}
           </button>
@@ -125,7 +125,7 @@ export default function Navbar() {
       {/* Menú móvil */}
       <div
         id="menu-movil"
-        className={`overflow-hidden border-b border-neutral-100 bg-white transition-all duration-300 xl:hidden ${
+        className={`overflow-hidden border-b border-neutral-100 bg-white transition-all duration-300 lg:hidden ${
           menuOpen ? "max-h-[400px] opacity-100" : "max-h-0 opacity-0"
         }`}
       >

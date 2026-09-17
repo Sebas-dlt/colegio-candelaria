@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   ],
   metadataBase: new URL("https://www.colegiolacandelaria.edu.co"),
   icons: {
-    icon: "/favicon.ico",
+    icon: ["/favicon.ico", "/favicon.png"],
   },
 };
 
