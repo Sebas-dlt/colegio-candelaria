@@ -1,26 +1,95 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* Primarios - Azul del escudo IE Nuestra Señora de la Candelaria */
+  --color-primary-900: #003d5c;
+  --color-primary-800: #005580;
+  --color-primary-700: #0077a8;
+  --color-primary-600: #0099cb;
+
+  /* Secundarios */
+  --color-accent-yellow: #f2c94c;
+  --color-accent-gold: #d4a843;
+  --color-accent-white: #ffffff;
+
+  /* Neutrales */
+  --color-neutral-50: #f8f9fa;
+  --color-neutral-100: #f0f2f5;
+  --color-neutral-200: #e3e7ec;
+  --color-neutral-500: #6b7280;
+  --color-neutral-700: #374151;
+  --color-neutral-900: #111827;
+
+  /* Colores funcionales de tarjetas */
+  --color-card-blue: #1e88e5;
+  --color-card-green: #43a047;
+  --color-card-purple: #7e57c2;
+  --color-card-teal: #26a69a;
+  --color-card-red: #ef5350;
+  --color-card-orange: #fb8c00;
+
+  /* Estados */
+  --color-error: #d32f2f;
+  --color-success: #388e3c;
+  --color-focus: #1e88e5;
+  --color-whatsapp: #25d366;
+
+  /* Tipografía */
+  --font-sans: var(--font-montserrat), "Poppins", system-ui, sans-serif;
+  --font-script: var(--font-caveat), "Dancing Script", "Pacifico", cursive;
+
+  /* Sombras */
+  --shadow-card: 0 2px 8px rgba(11, 31, 58, 0.08);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    border-color: var(--color-neutral-200);
   }
-}
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--color-neutral-50);
+    color: var(--color-neutral-700);
+    font-family: var(--font-montserrat), system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  /* Skip link */
+  .skip-link {
+    position: absolute;
+    top: -100%;
+    left: 16px;
+    background: var(--color-primary-900);
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: var(--radius-md);
+    z-index: 1000;
+    font-weight: 600;
+  }
+  .skip-link:focus {
+    top: 16px;
+  }
+
+  /* Reducción de movimiento */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
