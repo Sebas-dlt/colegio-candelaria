@@ -108,6 +108,22 @@ export default function SectionCards() {
             </div>
           </article>
         ))}
+
+        {/* QuoteBlock como tarjeta */}
+        <article className="flex flex-col overflow-hidden rounded-lg bg-primary-700 shadow-card">
+          <div className="flex flex-1 flex-col justify-center p-6">
+            <h2 className="font-script text-[28px] leading-tight text-white">
+              Juntos construimos grandes sueños
+            </h2>
+            <blockquote className="mt-4 text-[15px] italic leading-[1.7] text-white/80">
+              &ldquo;La educación es la herramienta más poderosa para transformar
+              vidas y construir una mejor sociedad.&rdquo;
+            </blockquote>
+            <footer className="mt-4 text-[13px] font-semibold text-white/60">
+              — Institución Educativa Nuestra Señora de la Candelaria
+            </footer>
+          </div>
+        </article>
       </div>
     </section>
   );
