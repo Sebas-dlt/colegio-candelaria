@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { IconCalendar } from "@tabler/icons-react";
 
 type Noticia = {
@@ -6,7 +7,7 @@ type Noticia = {
   titulo: string;
   descripcion: string;
   fecha: string;
-  gradient: string;
+  imagen: string;
 };
 
 const NOTICIAS: Noticia[] = [
@@ -16,7 +17,7 @@ const NOTICIAS: Noticia[] = [
     descripcion:
       "Con entusiasmo recibimos a nuestros estudiantes en este nuevo año académico.",
     fecha: "20 de enero de 2025",
-    gradient: "from-primary-700 to-primary-600",
+    imagen: "/news/noticia-1.png",
   },
   {
     categoria: "Admisiones",
@@ -24,7 +25,7 @@ const NOTICIAS: Noticia[] = [
     descripcion:
       "Conoce los requisitos y pasos para realizar el proceso de matrícula.",
     fecha: "15 de enero de 2025",
-    gradient: "from-card-orange to-card-orange/60",
+    imagen: "/news/noticia-2.png",
   },
   {
     categoria: "Gestión Académica",
@@ -32,7 +33,7 @@ const NOTICIAS: Noticia[] = [
     descripcion:
       "Consulta aquí las fechas y modalidades de entrega de informes.",
     fecha: "10 de enero de 2025",
-    gradient: "from-card-purple to-card-purple/60",
+    imagen: "/news/noticia-3.png",
   },
   {
     categoria: "Eventos",
@@ -40,7 +41,7 @@ const NOTICIAS: Noticia[] = [
     descripcion:
       "Nuestros estudiantes brillaron en la jornada deportiva intercolegiada.",
     fecha: "5 de enero de 2025",
-    gradient: "from-card-teal to-card-teal/60",
+    imagen: "/news/noticia-4.png",
   },
 ];
 
@@ -75,11 +76,15 @@ export default function NewsCarousel() {
         {NOTICIAS.map((noticia) => (
           <li key={noticia.titulo}>
             <article className="flex h-full flex-col overflow-hidden rounded-lg bg-white shadow-card">
-              {/* Imagen placeholder */}
-              <div
-                aria-hidden="true"
-                className={`relative aspect-video w-full bg-gradient-to-br ${noticia.gradient}`}
-              >
+              {/* Imagen de la noticia */}
+              <div className="relative aspect-video w-full overflow-hidden">
+                <Image
+                  src={noticia.imagen}
+                  alt={noticia.titulo}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                />
                 <span className="absolute left-3 top-3 rounded-sm bg-primary-800 px-2 py-1 text-[12px] font-semibold text-white">
                   {noticia.categoria}
                 </span>
