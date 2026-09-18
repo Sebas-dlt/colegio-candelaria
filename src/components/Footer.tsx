@@ -15,6 +15,7 @@ const ENLACES_SITIO = [
   { label: "Política de privacidad", href: "/politica-de-privacidad" },
   { label: "Política de derechos de autor", href: "/politica-derechos-autor" },
   { label: "Términos y condiciones", href: "/terminos-y-condiciones" },
+  { label: "Accesibilidad", href: "/accesibilidad" },
 ];
 
 const REDES_SOCIALES = [
@@ -219,6 +220,15 @@ export default function Footer() {
               className="transition-colors hover:text-accent-yellow"
             >
               Derechos de autor
+            </Link>
+            <span aria-hidden="true" className="text-white/20">
+              |
+            </span>
+            <Link
+              href="/accesibilidad"
+              className="transition-colors hover:text-accent-yellow"
+            >
+              Accesibilidad
             </Link>
           </div>
         </div>

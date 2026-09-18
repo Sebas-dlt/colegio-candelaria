@@ -1,0 +1,430 @@
+# OpenSpec: IE Nuestra Señora de la Candelaria - Planificación Completa
+version: "1.0"
+spec_id: colegio-candelaria-full
+title: "Planificación completa - PQRS, CMS, Calendario, Páginas internas, Transparencia"
+status: draft
+
+context: |
+  ## Contexto del proyecto
+  - **Proyecto**: Sitio web institucional IE Nuestra Señora de la Candelaria (Malambo, Atlántico)
+  - **Stack**: Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS v4
+  - **Fuentes**: Montserrat (sans) + Caveat (script)
+  - **Colores**: Primary #003d5c, Accent #f2c94c, Neutros
+  - **Hosting**: Vercel (gratuito)
+  - **Base de datos / Auth / Storage**: Supabase (plan gratuito: 500MB DB, 1GB storage, 50k MAU)
+  - **Email**: Resend (gratuito: 3k emails/mes) o Supabase Auth emails
+  - **CDN imágenes**: Supabase Storage + transformación on-the-fly
+  - **Principio**: Servicios gratuitos con capacidad real para uso institucional
+
+  ## Páginas existentes (solo Home)
+  - `/` (Hero, QuickAccess, SectionCards, NewsCarousel)
+  - Layout con Navbar (gov.co bar, logo, 6 secciones nav, mobile menu) + Footer
+
+  ## Páginas pendientes (según Navbar)
+  - `/institucional`
+  - `/transparencia` (requisitos legales entidad pública colombiana)
+  - `/gestion-academica`
+  - `/admisiones`
+  - `/atencion-ciudadana` (aquí va PQRS)
+
+requirements:
+  # ============================================================
+  # 1. MÓDULO PQRS (Peticiones, Quejas, Reclamos, Sugerencias, Denuncias)
+  # ============================================================
+  - id: REQ-PQRS-001
+    title: "Formulario PQRS dinámico, guiado y sustancioso"
+    description: |
+      Wizard multi-paso (4-5 pasos) con validación en tiempo real, guardado automático (localStorage)
+      y recuperación de sesión. Cada paso con micro-copy orientativa, tooltips contextuales y
+      indicador de progreso visual.
+      
+      Pasos:
+      1. Tipo de PQRS (radio cards con iconos + descripción breve)
+      2. Datos del solicitante (opcional anónimo, validación colombiana: cédula, tel, email)
+      3. Detalle del caso (rich text con adjuntos drag-drop, límite 10MB c/u, máx 3)
+      4. Datos adicionales (dependencia, sede, fechas, testigos - campos condicionales)
+      5. Resumen + consentimiento (checkbox Ley 1581/2012, Ley 1755/2015) + envío
+      
+      UX: animaciones sutiles entre pasos, feedback háptico (vibración API en móvil),
+      auto-focus siguiente campo, teclado numérico en tel/cédula.
+    priority: critical
+    tags: [pqrs, formularios, ux]
+
+  - id: REQ-PQRS-002
+    title: "Radicado único y trazabilidad pública"
+    description: |
+      Al enviar: genera radicado `CND-YYYY-NNNNNN` (prefijo + año + secuencial 6 dígitos).
+      Guarda en Supabase tabla `pqrs` con RLS. Devuelve PDF comprobante (generado cliente con
+      @react-pdf/renderer o serverless function).
+      
+      Página de consulta pública `/pqrs/consultar`:
+      - Input radicado + email/cédula (hash)
+      - Muestra: estado, fecha, tipo, dependencia, historial de cambios, respuesta final
+      - Timeline visual estilo "tracking paquete" con iconos de estado
+    priority: critical
+    tags: [pqrs, trazabilidad, publico]
+
+  - id: REQ-PQRS-003
+    title: "Emails automáticos: usuario + rector"
+    description: |
+      - **Usuario**: confirmación recepción (HTML + texto plano) con radicado, resumen, enlace consulta,
+        plazo legal (15 días hábiles Ley 1755), contacto seguimiento.
+      - **Rector/encargado**: notificación completa con todos los datos, adjuntos, enlace panel gestión.
+      - **Cambios de estado**: email al usuario en cada transición (En estudio → Resuelto, etc.)
+      - Proveedor: Resend (gratis 3k/mes) vía API route `/api/email` con templates React Email.
+      - Cola: Supabase pg_cron + edge function o trigger DB → HTTP.
+    priority: critical
+    tags: [pqrs, email, notificaciones]
+
+  - id: REQ-PQRS-004
+    title: "Panel gestión rector (área privada)"
+    description: |
+      Ruta `/admin/pqrs` protegida (Supabase Auth magic link o email/password solo rector).
+      Tabla paginada, filtros (estado, tipo, fecha, dependencia), búsqueda full-text.
+      Acciones: cambiar estado (dropdown con flujo válido), asignar responsable, añadir nota interna,
+      responder (genera email + actualiza timeline), exportar CSV/PDF.
+      Dashboard: KPIs (total, por estado, SLA cumplimiento, tiempo promedio).
+    priority: high
+    tags: [pqrs, admin, dashboard]
+
+  # ============================================================
+  # 2. CMS RECTOR (Noticias, Documentos, Eventos)
+  # ============================================================
+  - id: REQ-CMS-001
+    title: "CMS headless mínimo en Supabase"
+    description: |
+      Tablas con RLS (solo role `admin` write):
+      - `news`: id, slug, title, excerpt, content (markdown), cover_image, tags[], published_at, status
+      - `documents`: id, title, category, file_path, mime_type, size, description, published_at
+      - `events`: id, title, description, start_at, end_at, location, cover_image, is_all_day, status
+      
+      Panel `/admin/cms` con pestañas (Noticias, Documentos, Eventos).
+      Editor Markdown (toolbar simple: H2, bold, listas, link, imagen) con preview lado a lado.
+      Subida imágenes → Supabase Storage bucket `cms-images` con transform: `w=1200,q=80,f=webp`.
+      Slug auto-generado + editable. Publicar/despublicar. Borrado suave (soft delete).
+    priority: critical
+    tags: [cms, noticias, documentos, eventos, supabase]
+
+  - id: REQ-CMS-002
+    title: "Frontend público consumiendo CMS"
+    description: |
+      - `/noticias` : grid paginado (12/tarjeta), filtro tags, búsqueda, SEO (JSON-LD Article)
+      - `/noticias/[slug]` : artículo completo, imagen cover, related posts (mismos tags)
+      - `/documentos` : tabla filtrable por categoría, descarga directa, vista previa PDF (pdf.js)
+      - `/eventos` : lista + vista calendario (ver REQ-CAL-001), filtro mes/año, iCal export
+      - Home: últimos 3 noticias + 2 eventos próximos (SectionCards / NewsCarousel)
+      - ISR/SSG con revalidate 60s (next/cache tags) para contenido fresco sin rebuild.
+    priority: critical
+    tags: [cms, frontend, ssr, seo]
+
+  # ============================================================
+  # 3. CALENDARIO RENOVADO (Minimalista, bonito, funcional)
+  # ============================================================
+  - id: REQ-CAL-001
+    title: "Calendario interactivo minimalista"
+    description: |
+      Componente `Calendar` propio (sin librería pesada; ~2KB gzipped):
+      - Vista mes (grid 7x5-6), navegación mes/año, "hoy" destacado
+      - Eventos como dots de color por categoría (académico, cultural, administrativo, festivo)
+      - Click día → sidebar/drawer con lista eventos del día (hora, título, lugar)
+      - Vista lista alternativa (accesible, móvil)
+      - Filtros chips: categoría, sede, tipo
+      - Integración CMS: lee tabla `events` vía Supabase realtime (suscripción canal)
+      - Exportar .ics individual o rango
+      - Tema: fondo blanco, bordes sutiles neutral-100, primary-700 para hoy, accent-yellow para eventos
+      - Animaciones: Framer Motion solo mount/unmount (respecta prefers-reduced-motion)
+    priority: high
+    tags: [calendario, ui, minimalista, events]
+
+  # ============================================================
+  # 4. PÁGINAS INTERNAS COMPLETAS
+  # ============================================================
+  - id: REQ-PAGES-001
+    title: "Institucional (/institucional)"
+    description: |
+      Secciones: Misión/Visión/Valores (tarjetas icono + texto), Historia (timeline vertical),
+      Estructura orgánica (organigrama SVG interactivo), Símbolos (himno, bandera, escudo con modal),
+      Directivos (grid fotos + cargo + email), Sedes (cards con foto, dirección, horario, mapa Leaflet).
+      Contenido migrado de web actual, reescrito con tono cercano, fotos reales.
+    priority: high
+    tags: [pages, institucional]
+
+  - id: REQ-PAGES-002
+    title: "Gestión Académica (/gestion-academica)"
+    description: |
+      Sub-secciones (tabs o páginas hijas):
+      - Calendario académico (PDF + vista calendario eventos tipo "académico")
+      - Proyectos transversales (cards con imagen, descripción, enlace detalle)
+      - Plan de estudios por grado (acordeón)
+      - Resultados Saber / ICFES (gráficos simples Recharts)
+      - Biblioteca / Recursos (enlaces a documentos CMS categoría "académico")
+    priority: high
+    tags: [pages, academico]
+
+  - id: REQ-PAGES-003
+    title: "Admisiones (/admisiones)"
+    description: |
+      Paso a paso proceso (stepper visual), requisitos por grado (PDF descargables),
+      formulario pre-inscripción (React Hook Form + Zod, guarda en Supabase `preinscripciones`,
+      email confirmación), fechas clave (eventos tipo "admisión" del calendario),
+      Preguntas frecuentes (acordeón), Contacto admisiones (tel/email directo).
+    priority: high
+    tags: [pages, admisiones, formularios]
+
+  - id: REQ-PAGES-004
+    title: "Atención al Ciudadano (/atencion-ciudadana)"
+    description: |
+      Hub central: tarjetas acceso rápido a PQRS (radicar, consultar), Quejas/Sugerencias buzón,
+      Derechos del usuario (Ley 1755), Horarios atención, Formularios descargables (CMS docs),
+      Enlace portal nacional "Quejas y Soluciones" (SDP), Mapa del sitio.
+    priority: high
+    tags: [pages, atencion-ciudadana, pqrs]
+
+  # ============================================================
+  # 5. TRANSPARENCIA Y REQUISITOS LEGALES (Entidad pública Colombia)
+  # ============================================================
+  - id: REQ-TRANS-001
+    title: "Transparencia (/transparencia) - Cumplimiento Ley 1712/2014 y Decreto 1581/2013"
+    description: |
+      Estructura obligatoria (indexada, buscable, accesible):
+      1. **Información institucional**: Estatutos, misión, funciones, organigrama, directivos, sedes
+      2. **Gestión contractual**: Procesos SECOP II (embed/iframe o tabla sincronizada), contratos,
+         convenios, órdenes de proveimiento, informes ejecución presupuestal
+      3. **Presupuesto y finanzas**: Presupuesto general, ejecutado, vigencias futuras, informes
+         contables, estados financieros, auditorías
+      4. **Talento humano**: Planta de personal, manual de funciones, escalafón, vacantes,
+         capacitación, nómina (resumen)
+      5. **Planeación**: Plan de desarrollo, POA, informes de gestión, metas e indicadores
+      6. **Atención al ciudadano**: PQRS (link a módulo), quejas, sugerencias, rendición de cuentas
+      7. **Datos abiertos**: Catálogo datasets (CSV/JSON), API pública básica
+      8. **Protección de datos**: Aviso privacidad, política tratamiento, DPO, procedimiento
+         ejercicio derechos (habeas data)
+      9. **Otros**: Actas consejo directivo, resoluciones, circulares, manuales
+      
+      Cada sección: lista documentos (CMS categoría "transparencia"), metadatos (fecha, versión,
+      responsable, clasificación), descarga directa, versión accesible (HTML + PDF/ODT).
+      Buscador global (Supabase pg_trgm o Meilisearch gratuito self-hosted en Vercel Functions).
+    priority: critical
+    tags: [transparencia, legal, colombia, compliance]
+
+  - id: REQ-TRANS-002
+    title: "Páginas legales complementarias"
+    description: |
+      - `/politica-de-privacidad` (Ley 1581/2012 + Decreto 1377/2013)
+      - `/politica-derechos-autor` (Ley 23/1982)
+      - `/terminos-y-condiciones` (uso sitio, accesibilidad, cookies)
+      - `/mapa-del-sitio` (generado automático de rutas)
+      - `/accesibilidad` (declaración conformidad WCAG 2.1 AA)
+      Contenido migrado de web actual, renovado tono y diseño consistente.
+    priority: high
+    tags: [legal, compliance, wcag]
+
+  # ============================================================
+  # 6. INFRAESTRUCTURA Y SERVICIOS GRATUITOS
+  # ============================================================
+  - id: REQ-INFRA-001
+    title: "Stack servicios gratuitos con capacidad real"
+    description: |
+      | Servicio | Plan Free | Uso |
+      |---|---|---|
+      | **Vercel** | Hobby | Hosting Next.js, Edge Functions, ISR, Analytics |
+      | **Supabase** | Free | Postgres 500MB, Auth, Storage 1GB, Realtime, Edge Functions, pg_cron |
+      | **Resend** | Free | 3,000 emails/mes (transaccionales PQRS, CMS) |
+      | **Cloudflare** | Free | DNS, WAF, Cache, Analytics, Turnstile (captcha PQRS) |
+      | **GitHub** | Free | Repo, Actions (CI/CD), Pages (docs) |
+      
+      Arquitectura:
+      - Next.js en Vercel (build output: standalone + static)
+      - Supabase: DB + Auth + Storage + Realtime (eventos calendario live)
+      - Imágenes: Supabase Storage `cms-images` + `pqrs-attachments` (signed URLs, TTL 1h)
+      - Email: Resend API desde Vercel Edge Functions (cold start <100ms)
+      - Captcha: Cloudflare Turnstile en formulario PQRS (invisible)
+      - Analytics: Vercel Analytics + Supabase Logs (sin GA4 para privacidad)
+    priority: critical
+    tags: [infra, free-tier, supabase, vercel, resend]
+
+  - id: REQ-INFRA-002
+    title: "Supabase Storage + CDN para imágenes CMS"
+    description: |
+      Buckets:
+      - `cms-images` (public): noticias, eventos, documentos covers → transform `w=1200,q=80,f=webp`
+      - `pqrs-attachments` (private): adjuntos PQRS → signed URL TTL 1h, RLS por radicado/email
+      - `site-assets` (public): logos, hero, backgrounds (cache largo)
+      
+      Componente `OptimizedImage` wrapper Next/Image + Supabase transform params.
+      Placeholder blur (Base64 20px) generado en upload (edge function).
+      Fallback: si Supabase caído → Cloudflare Images (plan free 100k/mes) como mirror.
+    priority: high
+    tags: [storage, cdn, images, supabase]
+
+  # ============================================================
+  # 7. ACCESIBILIDAD, SEO, PERFORMANCE
+  # ============================================================
+  - id: REQ-A11Y-001
+    title: "WCAG 2.1 AA obligatorio"
+    description: |
+      - Semántica HTML5 correcta (landmarks, headings jerárquicos)
+      - Contraste ≥4.5:1 (textos), ≥3:1 (UI) - validado en CI
+      - Navegación teclado completa (focus visible, skip links, focus trap modals)
+      - ARIA labels solo donde HTML nativo no basta
+      - Textos alternativos descriptivos en todas las imágenes
+      - Formularios: labels asociados, error messages `aria-live`, autocomplete
+      - Reducción movimiento respetada
+      - Auditoría: axe-core en CI + test manual NVDA/VoiceOver
+    priority: high
+    tags: [a11y, wcag, compliance]
+
+  - id: REQ-SEO-001
+    title: "SEO técnico completo"
+    description: |
+      - Metadata dinámico por página (title, description, OG, Twitter, JSON-LD)
+      - Sitemap.xml + robots.txt generados en build (next-sitemap)
+      - Canonical URLs, hreflang (solo ES por ahora)
+      - Core Web Vitals: LCP <2.5s, CLS <0.1, INP <200ms (objetivo)
+      - Imágenes: Next/Image con sizes correctos, priority above-fold
+      - Fonts: `next/font` con `display: swap`, preload crítico
+      - Structured Data: Organization, WebSite, BreadcrumbList, Article, Event, FAQPage
+    priority: high
+    tags: [seo, performance, core-web-vitals]
+
+  # ============================================================
+  # 8. DOCUMENTACIÓN TÉCNICA
+  # ============================================================
+  - id: REQ-DOC-001
+    title: "Documentación técnica viva (OpenSpec + Storybook + README)"
+    description: |
+      - OpenSpec: este archivo + changes por feature
+      - Storybook: componentes UI (Button, Card, Input, Modal, Calendar, FormWizard)
+      - README: setup, env vars, scripts, deploy, arquitectura
+      - ADR: decisiones arquitectura (Supabase vs Firebase, Resend vs Nodemailer, etc.)
+      - Runbooks: deploy, rollback, backup DB, rotación secrets
+    priority: medium
+    tags: [docs, openspec, storybook, adr]
+
+non_goals:
+  - App móvil nativa (React Native) - fuera de alcance
+  - Portal estudiantes/familias con notas/asistencia - fase 2
+  - Pagos en línea (matrícula, pensiones) - fase 2
+  - Multi-idioma (solo ES por ahora)
+  - Chatbot/IA - evaluar después de MVP
+  - SSO SAML/OIDC con entidad territorial - no requerido aún
+
+milestones:
+  - name: "M1: Fundación + PQRS MVP"
+    target_date: "2025-10-15"
+    deliverables:
+      - Supabase project + schema (pqrs, news, documents, events, auth)
+      - Vercel project + CI/CD (GitHub Actions: lint, typecheck, test, build)
+      - PQRS wizard completo (radicar + consultar + emails usuario/rector)
+      - Panel admin PQRS básico (lista, cambio estado, responder)
+      - Componente Calendar v1 (mes + lista + filtros)
+      - Deploy preview funcional
+
+  - name: "M2: CMS + Páginas internas"
+    target_date: "2025-11-15"
+    deliverables:
+      - Panel admin CMS (Noticias, Documentos, Eventos) con editor Markdown
+      - Frontend público: /noticias, /noticias/[slug], /documentos, /eventos
+      - Páginas: /institucional, /gestion-academica, /admisiones
+      - Integración Calendar en /eventos y /gestion-academica
+      - OptimizedImage + Supabase Storage transform
+
+  - name: "M3: Transparencia + Legal + Pulido"
+    target_date: "2025-12-15"
+    deliverables:
+      - /transparencia completa (estructura legal, buscador, documentos CMS)
+      - Páginas legales: privacidad, derechos autor, términos, accesibilidad, mapa sitio
+      - Auditoría WCAG 2.1 AA + correcciones
+      - SEO técnico completo (sitemap, JSON-LD, Core Web Vitals)
+      - Documentación técnica (OpenSpec, Storybook, README, ADR, Runbooks)
+      - Deploy producción + monitoreo (Vercel Analytics + Supabase Logs)
+
+  - name: "M4: Entrega y capacitación"
+    target_date: "2026-01-15"
+    deliverables:
+      - Manual rector (PDF + video 15min): CMS, PQRS panel, Calendario
+      - Manual usuario (1 pág): cómo radicar PQRS, consultar, navegar sitio
+      - Checklist entrega: credenciales, dominios, DNS, backups, contactos soporte
+      - Sesión capacitación virtual (grabada)
+      - Soporte 30 días post-lanzamiento
+
+dependencies:
+  - Supabase project creado (DB, Auth, Storage, Realtime, Edge Functions)
+  - Vercel project vinculado a repo GitHub
+  - Resend account + domain verificado (colegiolacandelaria.edu.co)
+  - Cloudflare Turnstile site key + secret
+  - Dominio configurado en Vercel + DNS Cloudflare
+  - Cuenta GitHub para repo + Actions
+
+risks:
+  - id: RISK-001
+    title: "Límites plan gratuito Supabase (500MB DB, 1GB storage)"
+    mitigation: "Archivar PQRS >2 años a CSV en GitHub Releases; comprimir imágenes WebP 80%; monitoreo semanal"
+    probability: medium
+    impact: high
+
+  - id: RISK-002
+    title: "Email deliverability (Resend free tier reputación IP compartida)"
+    mitigation: "DKIM/SPF/DMARC en dominio propio; warm-up gradual; fallback Supabase Auth emails"
+    probability: medium
+    impact: medium
+
+  - id: RISK-003
+    title: "Complejidad legal transparencia (Ley 1712) - contenido extenso"
+    mitigation: "Plantillas pre-armadas; migración por fases; priorizar secciones más consultadas"
+    probability: high
+    impact: medium
+
+  - id: RISK-004
+    title: "Rector no técnico - usabilidad CMS/PQRS panel"
+    mitigation: "UX testing con rector en M1; iterar; documentación con capturas + video"
+    probability: high
+    impact: high
+
+acceptance_criteria:
+  - PQRS: usuario radica en <5 min, recibe email <1 min, rector ve en panel <30s, consulta pública funciona
+  - CMS: rector crea noticia con imagen en <3 min, aparece en web <60s (ISR)
+  - Calendario: carga <1s, navegación fluida 60fps, eventos sync realtime <2s
+  - Páginas internas: todas accesibles (WCAG AA), SEO score >90 Lighthouse
+  - Transparencia: 100% secciones legales cubiertas, buscador <500ms
+  - Performance: LCP <2.5s, CLS <0.1, INP <200ms en 3G throttled
+  - Deploy: cero downtime, rollback <2 min, logs centralizados
+
+tech_decisions:
+  - id: TD-001
+    title: "Supabase sobre Firebase"
+    rationale: "Postgres real (RLS, triggers, pg_cron, full-text), Storage S3-compatible, Realtime nativo, Edge Functions Deno, pricing predecible. Firebase: vendor lock-in, NoSQL, límites reads/writes."
+    status: decided
+
+  - id: TD-002
+    title: "Resend sobre Nodemailer/SendGrid"
+    rationale: "API React Email (templates TSX), 3k gratis vs 100/día SendGrid, deliverability excelente, Edge-ready, webhooks nativos."
+    status: decided
+
+  - id: TD-003
+    title: "Calendario custom vs FullCalendar/React Big Calendar"
+    rationale: "Bundle size: custom ~2KB vs 50-100KB. Requisitos simples (mes, dots, drawer). Control total diseño minimalista. Sin dependencias extra."
+    status: decided
+
+  - id: TD-004
+    title: "Zod + React Hook Form vs React Hook Form + Yup"
+    rationale: "Zod: TypeScript-first, inferencia tipos automática, bundle menor, performance mejor."
+    status: decided
+
+  - id: TD-005
+    title: "Framer Motion solo para mount/unmount"
+    rationale: "Respeto prefers-reduced-motion nativo. Bundle ~12KB. Alternativa: CSS animations + View Transitions API (experimental)."
+    status: decided
+
+  - id: TD-006
+    title: "ISR (revalidate 60s) vs SSG puro para CMS content"
+    rationale: "Contenido fresco sin rebuild. Vercel ISR gratis. Cache tags para invalidar selectivo en publish."
+    status: decided
+
+open_questions:
+  - ¿Dominio definitivo confirmado? (colegiolacandelaria.edu.co)
+  - ¿Rector tiene preferencia auth: magic link vs email/password?
+  - ¿Hay contenido actual en WordPress/otro CMS para migrar? (export XML/JSON)
+  - ¿Logo/imágenes fuentes vectoriales (SVG) disponibles?
+  - ¿Integración SECOP II: embed iframe vs API (requiere credenciales entidad)?
+  - ¿Meilisearch en Vercel Functions vs pg_trgm para buscador transparencia?
