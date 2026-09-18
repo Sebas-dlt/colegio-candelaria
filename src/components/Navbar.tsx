@@ -4,27 +4,30 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
-  IconChevronDown,
   IconMenu2,
-  IconUser,
   IconX,
   IconPhone,
-  IconMail,
+  IconChevronDown,
 } from "@tabler/icons-react";
 
-const NAV_LINKS = [
+const NAV_MAIN = [
   { label: "Inicio", href: "/" },
   { label: "Institucional", href: "/institucional" },
-  { label: "Transparencia", href: "/transparencia" },
-  { label: "Gestión Académica", href: "/gestion-academica" },
   { label: "Admisiones", href: "/admisiones" },
-  { label: "Atención al Ciudadano", href: "/atencion-ciudadana" },
   { label: "Calendario", href: "/calendario" },
+];
+
+const NAV_SECONDARY = [
+  { label: "Gestión Académica", href: "/gestion-academica" },
+  { label: "PQRS", href: "/pqrs/radicar" },
+  { label: "Consulta PQRS", href: "/pqrs/consultar" },
+  { label: "Transparencia", href: "/transparencia" },
 ];
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
@@ -35,8 +38,8 @@ export default function Navbar() {
   return (
     <header className={`sticky top-0 z-50 transition-all duration-300 ${scrolled ? "shadow-md" : ""}`}>
       {/* Barra gov.co */}
-      <div className="bg-[#3366cc]">
-        <div className="mx-auto flex h-10 max-w-[1280px] items-center px-6">
+      <div className="bg-primary-900">
+        <div className="mx-auto flex h-8 max-w-[1280px] items-center px-6">
           <Link
             href="https://www.gov.co/"
             target="_blank"
@@ -50,7 +53,7 @@ export default function Navbar() {
               width={200}
               height={47}
               priority
-              style={{ width: "auto", height: 22 }}
+              style={{ width: "auto", height: 18 }}
             />
           </Link>
         </div>
@@ -76,36 +79,58 @@ export default function Navbar() {
           </Link>
 
           {/* Links desktop */}
-          <ul className="hidden items-center gap-0.5 lg:flex" role="menubar">
-            {NAV_LINKS.map((link) => (
+          <ul className="hidden items-center gap-1 lg:flex" role="menubar">
+            {NAV_MAIN.map((link) => (
               <li key={link.href} role="none">
                 <Link
                   href={link.href}
                   role="menuitem"
-                  className="flex items-center rounded-md px-3 py-2 text-[13px] font-medium text-neutral-700 transition-colors hover:bg-primary-600/8 hover:text-primary-700"
+                  className="flex items-center rounded-lg px-3.5 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-primary-50 hover:text-primary-700"
                 >
                   {link.label}
                 </Link>
               </li>
             ))}
+            {/* Más dropdown */}
+            <li role="none" className="relative">
+              <button
+                onClick={() => setMoreOpen(!moreOpen)}
+                onBlur={() => setTimeout(() => setMoreOpen(false), 150)}
+                className="flex items-center gap-1 rounded-lg px-3.5 py-2 text-sm font-medium text-neutral-500 transition-colors hover:bg-neutral-50 hover:text-neutral-700"
+              >
+                Más
+                <IconChevronDown size={14} className={`transition-transform ${moreOpen ? "rotate-180" : ""}`} />
+              </button>
+              {moreOpen && (
+                <div className="absolute right-0 top-full mt-1 w-56 rounded-xl border border-neutral-200 bg-white p-1.5 shadow-lg">
+                  {NAV_SECONDARY.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className="block rounded-lg px-3 py-2 text-sm text-neutral-700 transition-colors hover:bg-neutral-50 hover:text-primary-700"
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </li>
           </ul>
 
           {/* Acciones desktop */}
-          <div className="hidden items-center gap-2 lg:flex">
+          <div className="hidden items-center gap-3 lg:flex">
             <a
               href="tel:+573042026613"
-              className="flex items-center gap-1.5 rounded-md px-2.5 py-2 text-[12px] font-medium text-neutral-500 transition-colors hover:text-primary-700"
+              className="flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-xs text-neutral-500 transition-colors hover:text-primary-700"
             >
               <IconPhone size={14} />
               304 202 6613
             </a>
-            <div className="mx-1 h-4 w-px bg-neutral-200" />
             <Link
-              href="/atencion-ciudadana"
-              className="flex items-center gap-1.5 rounded-full bg-primary-700 px-4 py-2 text-[13px] font-semibold text-white transition-all hover:bg-primary-800 hover:shadow-sm"
+              href="/pqrs/radicar"
+              className="rounded-full bg-primary-700 px-5 py-2 text-sm font-semibold text-white transition-all hover:bg-primary-800 hover:shadow-md"
             >
-              <IconUser size={14} />
-              Acceso rápido
+              Radicar PQRS
             </Link>
           </div>
 
@@ -127,39 +152,62 @@ export default function Navbar() {
       <div
         id="menu-movil"
         className={`overflow-hidden border-b border-neutral-100 bg-white transition-all duration-300 lg:hidden ${
-          menuOpen ? "max-h-[400px] opacity-100" : "max-h-0 opacity-0"
+          menuOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
         }`}
       >
         <div className="mx-auto max-w-[1280px] px-6 py-4">
+          {/* Links principales */}
           <ul className="flex flex-col">
-            {NAV_LINKS.map((link) => (
+            {NAV_MAIN.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
                   onClick={() => setMenuOpen(false)}
-                  className="flex h-12 items-center border-b border-neutral-50 text-[15px] font-medium text-neutral-700 transition-colors hover:text-primary-700"
+                  className="flex h-12 items-center text-base font-medium text-neutral-700 transition-colors hover:text-primary-700"
                 >
                   {link.label}
                 </Link>
               </li>
             ))}
           </ul>
+
+          {/* Separador */}
+          <div className="my-3 border-t border-neutral-100" />
+
+          {/* Links secundarios */}
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-neutral-400">
+            Más opciones
+          </p>
+          <ul className="flex flex-col">
+            {NAV_SECONDARY.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  onClick={() => setMenuOpen(false)}
+                  className="flex h-10 items-center text-sm text-neutral-500 transition-colors hover:text-primary-700"
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+
+          {/* CTA */}
           <div className="mt-4 flex flex-col gap-2">
             <a
               href="tel:+573042026613"
               onClick={() => setMenuOpen(false)}
-              className="flex h-12 items-center justify-center gap-2 rounded-full border border-neutral-200 text-[14px] font-medium text-neutral-600"
+              className="flex h-12 items-center justify-center gap-2 rounded-full border border-neutral-200 text-sm font-medium text-neutral-600"
             >
               <IconPhone size={16} />
               304 202 6613
             </a>
             <Link
-              href="/atencion-ciudadana"
+              href="/pqrs/radicar"
               onClick={() => setMenuOpen(false)}
-              className="flex h-12 items-center justify-center gap-2 rounded-full bg-primary-700 text-[14px] font-semibold text-white"
+              className="flex h-12 items-center justify-center gap-2 rounded-full bg-primary-700 text-sm font-semibold text-white"
             >
-              <IconUser size={16} />
-              Acceso rápido
+              Radicar PQRS
             </Link>
           </div>
         </div>
