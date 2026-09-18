@@ -1,10 +1,11 @@
 "use client";
 
 import { UseFormWatch } from "react-hook-form";
+import type { PqrsFormData } from "./PqrsWizard";
 import { IconAlertCircle, IconShield } from "@tabler/icons-react";
 
 interface StepSummaryProps {
-  watch: UseFormWatch<any>;
+  watch: UseFormWatch<PqrsFormData>;
 }
 
 const TYPE_LABELS: Record<string, string> = {

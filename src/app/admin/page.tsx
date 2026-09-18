@@ -165,7 +165,7 @@ function StatCard({
 }: {
   label: string;
   value: number;
-  icon: any;
+  icon: React.ComponentType<{ size: number; className?: string }>;
   color: string;
   bg: string;
 }) {
@@ -184,8 +184,19 @@ function StatCard({
   );
 }
 
+interface PqrsItem {
+  id: string;
+  radicado: string;
+  subject: string;
+  status: string;
+  created_at: string;
+  is_anonymous: boolean;
+  full_name?: string;
+  email?: string;
+}
+
 function RecentPqrs() {
-  const [pqrs, setPqrs] = useState<any[]>([]);
+  const [pqrs, setPqrs] = useState<PqrsItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

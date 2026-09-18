@@ -58,8 +58,24 @@ export default function AdminEventsPage() {
   }, []);
 
   useEffect(() => {
-    fetchEvents();
-  }, [fetchEvents]);
+    let cancelled = false;
+    const now = new Date();
+    const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+
+    fetch(`/api/events?month=${month}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (!cancelled) setEvents(data.events ?? []);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const resetForm = () => {
     setForm({ title: "", description: "", start_date: "", start_time: "", end_date: "", end_time: "", location: "", category: "general", is_all_day: false });

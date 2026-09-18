@@ -12,6 +12,22 @@ import {
   IconFileText,
 } from "@tabler/icons-react";
 
+interface PqrsResult {
+  radicado: string;
+  status: string;
+  type: string;
+  created_at: string;
+  subject: string;
+  response?: string;
+  responded_at?: string;
+  timeline?: Array<{
+    new_status: string;
+    note?: string;
+    created_at: string;
+    profiles?: { full_name?: string };
+  }>;
+}
+
 const STATUS_CONFIG: Record<string, { color: string; bg: string; label: string }> = {
   recibida: { color: "text-blue-600", bg: "bg-blue-50", label: "Recibida" },
   en_estudio: { color: "text-yellow-600", bg: "bg-yellow-50", label: "En Estudio" },
@@ -36,7 +52,7 @@ function ConsultarContent() {
   const [radicado, setRadicado] = useState(initialRadicado);
   const [identifier, setIdentifier] = useState("");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<PqrsResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -226,7 +242,7 @@ function ConsultarContent() {
                   Historial de cambios
                 </h3>
                 <div className="space-y-4">
-                  {result.timeline.map((entry: any, index: number) => {
+                  {result.timeline.map((entry, index) => {
                     const config = STATUS_CONFIG[entry.new_status];
                     const performedBy =
                       entry.profiles?.full_name || "Sistema";

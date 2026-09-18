@@ -1,11 +1,11 @@
 "use client";
 
-import { UseFormRegister, FieldErrors } from "react-hook-form";
+import { UseFormRegister } from "react-hook-form";
+import type { PqrsFormData } from "./PqrsWizard";
 import { IconBuilding, IconCalendar } from "@tabler/icons-react";
 
 interface StepAdditionalProps {
-  register: UseFormRegister<any>;
-  errors: FieldErrors<any>;
+  register: UseFormRegister<PqrsFormData>;
 }
 
 const DEPENDENCIES = [
@@ -22,7 +22,7 @@ const DEPENDENCIES = [
   "Otra",
 ];
 
-export default function StepAdditional({ register, errors }: StepAdditionalProps) {
+export default function StepAdditional({ register }: StepAdditionalProps) {
   return (
     <div className="space-y-6">
       <div className="text-center">

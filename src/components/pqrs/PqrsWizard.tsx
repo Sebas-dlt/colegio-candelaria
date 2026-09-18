@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import Link from "next/link";
 import {
   IconChevronRight,
   IconChevronLeft,
@@ -42,7 +43,7 @@ const pqrsSchema = z.object({
   event_date: z.string().optional(),
 });
 
-type PqrsFormData = Record<string, any>;
+export type PqrsFormData = z.infer<typeof pqrsSchema>;
 
 const STEPS = [
   { id: 1, label: "Tipo", description: "¿Qué desea reportar?" },
@@ -100,7 +101,7 @@ export default function PqrsWizard() {
         const data = JSON.parse(saved);
         Object.entries(data).forEach(([key, value]) => {
           if (value !== undefined && value !== null && key !== "currentStep") {
-            setValue(key as any, value);
+            setValue(key as keyof PqrsFormData, value as PqrsFormData[keyof PqrsFormData]);
           }
         });
         if (data.currentStep) {
@@ -158,7 +159,7 @@ export default function PqrsWizard() {
   };
 
   // Enviar formulario
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: PqrsFormData) => {
     setIsSubmitting(true);
     setSubmitResult(null);
 
@@ -229,12 +230,12 @@ export default function PqrsWizard() {
           >
             Consultar Estado
           </a>
-          <a
+          <Link
             href="/"
             className="inline-flex items-center justify-center rounded-lg border border-neutral-200 px-6 py-3 text-sm font-semibold text-neutral-700 transition-colors hover:bg-neutral-50"
           >
             Volver al Inicio
-          </a>
+          </Link>
         </div>
       </div>
     );
@@ -312,7 +313,7 @@ export default function PqrsWizard() {
 
         {/* Paso 4: Adicionales */}
         {currentStep === 4 && (
-          <StepAdditional register={register} errors={errors} />
+          <StepAdditional register={register} />
         )}
 
         {/* Paso 5: Resumen */}

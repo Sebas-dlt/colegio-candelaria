@@ -15,7 +15,7 @@ const eventUpdateSchema = z.object({
   status: z.enum(["draft", "published", "cancelled"]).optional(),
 });
 
-async function requireAdmin(request: Request) {
+async function requireAdmin() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { supabase, error: NextResponse.json({ error: "No autenticado" }, { status: 401 }) };
@@ -29,7 +29,7 @@ async function requireAdmin(request: Request) {
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { supabase, error } = await requireAdmin(request);
+  const { supabase, error } = await requireAdmin();
   if (error) return error;
 
   const body = await request.json();
@@ -50,7 +50,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { supabase, error } = await requireAdmin(request);
+  const { supabase, error } = await requireAdmin();
   if (error) return error;
 
   const { error: deleteError } = await supabase.from("events").delete().eq("id", id);

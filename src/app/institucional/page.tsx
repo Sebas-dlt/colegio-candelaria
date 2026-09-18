@@ -7,7 +7,6 @@ import {
   IconClock,
   IconMapPin,
   IconPhone,
-  IconMail,
   IconStar,
 } from "@tabler/icons-react";
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import Calendar from "@/components/calendar/Calendar";
 import type { CalendarEvent } from "@/components/calendar/useCalendar";
 
@@ -12,30 +12,28 @@ export default function CalendarioPage() {
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
   });
 
-  const fetchEvents = useCallback(async (month: string) => {
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/events?month=${month}&status=published`);
-      if (res.ok) {
-        const data = await res.json();
-        setEvents(data.events ?? []);
-      }
-    } catch {
-      // Silently fail — calendar still renders empty
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
-    fetchEvents(currentMonth);
-  }, [currentMonth, fetchEvents]);
+    let cancelled = false;
+    fetch(`/api/events?month=${currentMonth}&status=published`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled) setEvents(data?.events ?? []);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [currentMonth]);
 
   const handleDateClick = (date: Date) => {
     const y = date.getFullYear();
     const m = String(date.getMonth() + 1).padStart(2, "0");
     const newMonth = `${y}-${m}`;
     if (newMonth !== currentMonth) {
+      setLoading(true);
       setCurrentMonth(newMonth);
     }
   };

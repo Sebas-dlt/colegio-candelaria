@@ -2,11 +2,10 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import {
   IconSearch,
-  IconFilter,
   IconChevronLeft,
   IconChevronRight,
   IconLoader2,
@@ -48,11 +47,22 @@ const TYPE_CONFIG: Record<string, string> = {
   denuncia: "Denuncia",
 };
 
+interface PqrsItem {
+  id: string;
+  radicado: string;
+  type: string;
+  subject: string;
+  status: string;
+  is_anonymous: boolean;
+  full_name?: string;
+  email?: string;
+  created_at: string;
+}
+
 function PqrsListContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
 
-  const [pqrs, setPqrs] = useState<any[]>([]);
+  const [pqrs, setPqrs] = useState<PqrsItem[]>([]);
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 10,
@@ -64,30 +74,58 @@ function PqrsListContent() {
   const [status, setStatus] = useState(searchParams.get("status") || "");
   const [type, setType] = useState(searchParams.get("type") || "");
 
-  const fetchPqrs = useCallback(async (page = 1) => {
-    setLoading(true);
-    try {
+  const buildParams = useCallback(
+    (page: number) => {
       const params = new URLSearchParams();
       params.set("page", page.toString());
       params.set("limit", "10");
       if (status) params.set("status", status);
       if (type) params.set("type", type);
       if (search) params.set("search", search);
+      return params;
+    },
+    [status, type, search]
+  );
 
-      const res = await fetch(`/api/pqrs?${params}`);
-      const data = await res.json();
-      setPqrs(data.data || []);
-      setPagination(data.pagination || { page: 1, limit: 10, total: 0, pages: 0 });
-    } catch (error) {
-      console.error("Error fetching PQRS:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [status, type, search]);
+  const fetchPqrs = useCallback(
+    async (page = 1) => {
+      setLoading(true);
+      try {
+        const res = await fetch(`/api/pqrs?${buildParams(page)}`);
+        const data = await res.json();
+        setPqrs(data.data || []);
+        setPagination(data.pagination || { page: 1, limit: 10, total: 0, pages: 0 });
+      } catch (error) {
+        console.error("Error fetching PQRS:", error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [buildParams]
+  );
 
   useEffect(() => {
-    fetchPqrs(1);
-  }, [fetchPqrs]);
+    let cancelled = false;
+
+    fetch(`/api/pqrs?${buildParams(1)}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (!cancelled) {
+          setPqrs(data.data || []);
+          setPagination(data.pagination || { page: 1, limit: 10, total: 0, pages: 0 });
+        }
+      })
+      .catch((error) => {
+        if (!cancelled) console.error("Error fetching PQRS:", error);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [buildParams]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

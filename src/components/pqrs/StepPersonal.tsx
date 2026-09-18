@@ -1,13 +1,14 @@
 "use client";
 
 import { UseFormRegister, UseFormWatch, UseFormSetValue, FieldErrors } from "react-hook-form";
+import type { PqrsFormData } from "./PqrsWizard";
 import { IconUser, IconMail, IconPhone, IconBuilding } from "@tabler/icons-react";
 
 interface StepPersonalProps {
-  register: UseFormRegister<any>;
-  watch: UseFormWatch<any>;
-  setValue: UseFormSetValue<any>;
-  errors: FieldErrors<any>;
+  register: UseFormRegister<PqrsFormData>;
+  watch: UseFormWatch<PqrsFormData>;
+  setValue: UseFormSetValue<PqrsFormData>;
+  errors: FieldErrors<PqrsFormData>;
 }
 
 const DOC_TYPES = [

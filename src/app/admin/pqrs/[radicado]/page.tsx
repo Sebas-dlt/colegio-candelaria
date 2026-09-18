@@ -10,7 +10,6 @@ import {
   IconClock,
   IconMessage,
   IconSend,
-  IconDownload,
 } from "@tabler/icons-react";
 
 const STATUS_OPTIONS = [
@@ -39,12 +38,41 @@ const TYPE_CONFIG: Record<string, string> = {
   denuncia: "Denuncia",
 };
 
+interface PqrsDetail {
+  id: string;
+  radicado: string;
+  type: string;
+  status: string;
+  subject: string;
+  description: string;
+  full_name?: string;
+  email?: string;
+  phone?: string;
+  document_type?: string;
+  document_number?: string;
+  is_anonymous: boolean;
+  created_at: string;
+  event_date?: string;
+  dependency?: string;
+  response?: string;
+  responded_at?: string;
+  evidence_description?: string;
+  timeline?: Array<{
+    old_status: string;
+    new_status: string;
+    note?: string;
+    is_internal: boolean;
+    created_at: string;
+    profiles?: { full_name?: string };
+  }>;
+}
+
 export default function PqrsDetailPage() {
   const params = useParams();
   const router = useRouter();
   const radicado = params.radicado as string;
 
-  const [pqrs, setPqrs] = useState<any>(null);
+  const [pqrs, setPqrs] = useState<PqrsDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [response, setResponse] = useState("");
@@ -54,6 +82,7 @@ export default function PqrsDetailPage() {
 
   useEffect(() => {
     fetchPqrs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [radicado]);
 
   async function fetchPqrs() {
@@ -75,12 +104,12 @@ export default function PqrsDetailPage() {
   }
 
   async function handleStatusUpdate() {
-    if (!newStatus && !response) return;
+    if (!pqrs || (!newStatus && !response)) return;
 
     setUpdating(true);
     try {
-      const body: any = {};
-      if (newStatus !== pqrs.status) {
+    const body: { status?: string; response?: string; note?: string } = {};
+    if (newStatus !== pqrs.status) {
         body.status = newStatus;
       }
       if (response) {
@@ -204,7 +233,7 @@ export default function PqrsDetailPage() {
                 Historial de cambios
               </h2>
               <div className="space-y-4">
-                {pqrs.timeline.map((entry: any, index: number) => {
+                {pqrs.timeline.map((entry, index) => {
                   const cfg = STATUS_CONFIG[entry.new_status] || {
                     label: entry.new_status,
                     class: "bg-neutral-100 text-neutral-700",

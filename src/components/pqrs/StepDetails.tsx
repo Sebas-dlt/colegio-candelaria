@@ -1,11 +1,12 @@
 "use client";
 
 import { UseFormRegister, FieldErrors } from "react-hook-form";
+import type { PqrsFormData } from "./PqrsWizard";
 import { IconFileText, IconInfoCircle } from "@tabler/icons-react";
 
 interface StepDetailsProps {
-  register: UseFormRegister<any>;
-  errors: FieldErrors<any>;
+  register: UseFormRegister<PqrsFormData>;
+  errors: FieldErrors<PqrsFormData>;
 }
 
 export default function StepDetails({ register, errors }: StepDetailsProps) {
@@ -46,7 +47,7 @@ export default function StepDetails({ register, errors }: StepDetailsProps) {
           </p>
         )}
         <p className="mt-1 text-xs text-neutral-500">
-          Ejemplo: "Reclamo por falta de atención en secretaría"
+          Ejemplo: &quot;Reclamo por falta de atención en secretaría&quot;
         </p>
       </div>
 

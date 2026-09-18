@@ -10,7 +10,6 @@ import {
   IconCalendarEvent,
   IconFileText,
   IconSettings,
-  IconLogout,
   IconMenu2,
   IconX,
 } from "@tabler/icons-react";
