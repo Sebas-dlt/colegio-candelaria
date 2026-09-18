@@ -10,17 +10,25 @@ export default function Hero() {
       <img
         src="/hero.svg"
         alt="Fachada de la Institución Educativa Nuestra Señora de la Candelaria"
-        className="absolute inset-0 h-full w-full object-cover object-center"
+        className="absolute inset-0 h-full w-full object-cover"
       />
-      {/* Overlay blanco sutil para legibilidad del texto */}
+      {/* Overlay blanco apenas notable, desde esquina superior-izquierda hasta poco más abajo de las letras */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/60 to-transparent"
+        style={{
+          background:
+            "linear-gradient(135deg, rgba(255,255,255,0.97) 0%, rgba(255,255,255,0.78) 35%, rgba(255,255,255,0.25) 52%, rgba(255,255,255,0) 62%)",
+        }}
+        className="absolute inset-0"
       />
-      {/* Degradado sutil en esquina inferior para legibilidad */}
+      {/* Degradado sutil en esquina superior derecha para legibilidad del badge */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-gradient-to-t from-primary-900/30 via-transparent to-transparent"
+        style={{
+          background:
+            "linear-gradient(225deg, rgba(13,43,82,0.45) 0%, rgba(13,43,82,0.18) 25%, transparent 50%)",
+        }}
+        className="absolute inset-0"
       />
 
       {/* Badge script sobre la imagen */}
