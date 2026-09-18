@@ -38,7 +38,7 @@ export default function Navbar() {
   return (
     <header className={`sticky top-0 z-50 transition-all duration-300 ${scrolled ? "shadow-md" : ""}`}>
       {/* Barra gov.co */}
-      <div className="bg-primary-900">
+      <div className="bg-[#3366cc]">
         <div className="mx-auto flex h-8 max-w-[1280px] items-center px-6">
           <Link
             href="https://www.gov.co/"
