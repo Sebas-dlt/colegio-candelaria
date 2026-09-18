@@ -5,12 +5,12 @@ export default function Hero() {
   return (
     <section
       aria-label="Presentación de la institución"
-      className="relative flex min-h-[500px] items-center overflow-hidden bg-primary-800 sm:min-h-[560px] lg:min-h-[calc(100vh-120px)]"
+      className="relative flex h-[100dvh] items-center overflow-hidden bg-primary-800"
     >
       <img
         src="/hero.svg"
         alt="Fachada de la Institución Educativa Nuestra Señora de la Candelaria"
-        className="absolute inset-0 h-full w-full object-cover"
+        className="absolute inset-0 h-full w-full object-cover object-center"
       />
       {/* Overlay blanco apenas notable, desde esquina superior-izquierda hasta poco más abajo de las letras */}
       <div
