@@ -1,7 +1,14 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let resend: Resend | null = null;
+
+function getResend() {
+  if (!resend && process.env.RESEND_API_KEY) {
+    resend = new Resend(process.env.RESEND_API_KEY);
+  }
+  return resend;
+}
 
 interface EmailRequest {
   to: string | string[];
@@ -14,7 +21,8 @@ interface EmailRequest {
 export async function POST(request: Request) {
   try {
     // Verificar que Resend esté configurado
-    if (!process.env.RESEND_API_KEY) {
+    const resendClient = getResend();
+    if (!resendClient) {
       console.warn("RESEND_API_KEY not configured, skipping email");
       return NextResponse.json(
         { error: "Email no configurado", skipped: true },
@@ -33,7 +41,7 @@ export async function POST(request: Request) {
     }
 
     // Enviar email
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await resendClient.emails.send({
       from: process.env.EMAIL_FROM || "noreply@colegiolacandelaria.edu.co",
       to: Array.isArray(body.to) ? body.to : [body.to],
       subject: body.subject,
