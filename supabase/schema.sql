@@ -832,7 +832,63 @@ ALTER PUBLICATION supabase_realtime ADD TABLE public.events;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.pqrs;
 
 -- ============================================================
--- 12. CRON JOBS (pg_cron - para emails de PQRS)
+-- 12. ENLACES UNIDADES VIRTUALES
+-- ============================================================
+
+-- Tabla de enlaces de unidades virtuales (docentes)
+CREATE TABLE public.virtual_units (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  grade TEXT NOT NULL,                          -- Grado (00A, 01B, 06A, etc.)
+  teacher_name TEXT NOT NULL,                   -- Nombre del docente
+  drive_url TEXT NOT NULL,                      -- URL de Google Drive
+  sort_order INTEGER NOT NULL DEFAULT 0,        -- Orden de aparición
+  is_active BOOLEAN NOT NULL DEFAULT true,      -- Si está activo o no
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Índice para búsquedas por grado
+CREATE INDEX idx_virtual_units_grade ON public.virtual_units(grade);
+CREATE INDEX idx_virtual_units_active ON public.virtual_units(is_active);
+
+-- RLS para virtual_units
+ALTER TABLE public.virtual_units ENABLE ROW LEVEL SECURITY;
+
+-- Lectura pública
+CREATE POLICY "virtual_units_select_public"
+  ON public.virtual_units FOR SELECT
+  USING (true);
+
+-- Escritura solo admin/rector
+CREATE POLICY "virtual_units_insert_admin"
+  ON public.virtual_units FOR INSERT
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE id = auth.uid() AND role IN ('admin', 'rector')
+    )
+  );
+
+CREATE POLICY "virtual_units_update_admin"
+  ON public.virtual_units FOR UPDATE
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE id = auth.uid() AND role IN ('admin', 'rector')
+    )
+  );
+
+CREATE POLICY "virtual_units_delete_admin"
+  ON public.virtual_units FOR DELETE
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE id = auth.uid() AND role IN ('admin', 'rector')
+    )
+  );
+
+-- ============================================================
+-- 13. CRON JOBS (pg_cron - para emails de PQRS)
 -- ============================================================
 
 -- Nota: pg_cron está disponible en el plan gratuito de Supabase
