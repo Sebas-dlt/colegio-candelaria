@@ -15,6 +15,7 @@ const SITEMAP = [
       { label: "Institucional", href: "/institucional" },
       { label: "Gestión Académica", href: "/gestion-academica" },
       { label: "Admisiones", href: "/admisiones" },
+      { label: "Calendario", href: "/calendario" },
     ],
   },
   {

@@ -19,6 +19,7 @@ const NAV_LINKS = [
   { label: "Gestión Académica", href: "/gestion-academica" },
   { label: "Admisiones", href: "/admisiones" },
   { label: "Atención al Ciudadano", href: "/atencion-ciudadana" },
+  { label: "Calendario", href: "/calendario" },
 ];
 
 export default function Navbar() {
