@@ -5,7 +5,7 @@ export default function Hero() {
   return (
     <section
       aria-label="Presentación de la institución"
-      className="relative flex h-[100dvh] items-center overflow-hidden bg-primary-800"
+      className="relative flex h-[85dvh] items-center overflow-hidden bg-primary-800"
     >
       <img
         src="/hero.svg"
