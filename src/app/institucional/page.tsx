@@ -123,11 +123,12 @@ export default function InstitucionalPage() {
               Misión
             </h2>
             <p className="leading-relaxed text-neutral-600">
-              Formar personas íntegras, competentes y comprometidas con su
-              entorno, desde los valores del Evangelio, brindando una educación
-              de calidad que promueva el desarrollo integral de cada estudiante
-              y su participación activa en la construcción de una sociedad más
-              justa y solidaria.
+              La Institución Educativa Nuestra Señora de la Candelaria ofrece
+              servicio educativo oficial humanista a niños, niñas y jóvenes del
+              municipio de Malambo, a través de una propuesta académica
+              cognitivo-social, una formación técnica y un proyecto espiritual
+              que promuevan su desarrollo integral y le permitan generar
+              transformaciones en su entorno.
             </p>
           </div>
 
@@ -139,11 +140,15 @@ export default function InstitucionalPage() {
               Visión
             </h2>
             <p className="leading-relaxed text-neutral-600">
-              Ser una institución educativa de excelencia, reconocida por
-              formar líderes con pensamiento crítico, creatividad y compromiso
-              social, que contribuyan al desarrollo sostenible de su comunidad
-              y del país, impulsados por la innovación y los valores
-              humanistas.
+              La Institución Educativa Nuestra Señora de la Candelaria del
+              municipio de Malambo se visualiza a sí misma para el 2026 como
+              una escuela líder, reconocida a nivel departamental por su
+              disciplina, fortalecimiento del inglés como segunda lengua,
+              mejoramiento continuo en los resultados de las pruebas saber y la
+              utilización de ambientes que privilegien el uso de las TICS.emás,
+              se proyecta como una escuela que fomenta el emprendimiento entre
+              sus estudiantes y las relaciones cercanas con los padres de
+              familia.
             </p>
           </div>
         </div>
