@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     template: "%s | Institución Educativa Nuestra Señora de la Candelaria",
   },
   description:
-    "Formamos personas íntegras, competentes y comprometidas con su entorno, desde los valores del Evangelio.",
+    "Formamos personas íntegras, competentes y comprometidas con su entorno, desde los valores del Evangelio. Institución Educativa en Malambo, Atlántico.",
   keywords: [
     "colegio",
     "Malambo",
@@ -29,10 +29,36 @@ export const metadata: Metadata = {
     "escuela",
     "educación",
     "La Candelaria",
+    "institución educativa",
+    "eduación básica",
+    "secundaria",
   ],
-  metadataBase: new URL("https://www.colegiolacandelaria.edu.co"),
+  metadataBase: new URL("https://colegiolacandelaria.edu.co"),
   icons: {
     icon: ["/favicon.ico", "/favicon.png"],
+  },
+  openGraph: {
+    type: "website",
+    locale: "es_CO",
+    siteName: "IE Nuestra Señora de la Candelaria",
+    title: "Institución Educativa Nuestra Señora de la Candelaria",
+    description:
+      "Formamos personas íntegras, competentes y comprometidas con su entorno, desde los valores del Evangelio. Malambo, Atlántico.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "IE Nuestra Señora de la Candelaria - Malambo, Atlántico",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Institución Educativa Nuestra Señora de la Candelaria",
+    description:
+      "Formamos personas íntegras, competentes y comprometidas con su entorno, desde los valores del Evangelio. Malambo, Atlántico.",
+    images: ["/og-image.png"],
   },
 };
 
