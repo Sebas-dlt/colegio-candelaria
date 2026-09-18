@@ -178,7 +178,7 @@ export default function GestionAcademicaPage() {
           <h2 className="mb-8 text-center text-3xl font-bold text-neutral-900">
             Resultados ICFES
           </h2>
-          <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white">
+          <div className="overflow-x-auto rounded-2xl border border-neutral-200 bg-white">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-neutral-200 bg-neutral-50">
