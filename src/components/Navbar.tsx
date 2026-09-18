@@ -39,7 +39,7 @@ export default function Navbar() {
     <header className={`sticky top-0 z-50 transition-all duration-300 ${scrolled ? "shadow-md" : ""}`}>
       {/* Barra gov.co */}
       <div className="bg-[#3366cc]">
-        <div className="mx-auto flex h-8 max-w-[1280px] items-center px-6">
+        <div className="mx-auto flex h-8 max-w-[1280px] items-center px-4 sm:px-6">
           <Link
             href="https://www.gov.co/"
             target="_blank"
@@ -63,7 +63,7 @@ export default function Navbar() {
       <div className="border-b border-neutral-100 bg-white">
         <nav
           aria-label="Navegación principal"
-          className="mx-auto flex h-16 max-w-[1280px] items-center justify-between px-6"
+          className="mx-auto flex h-14 sm:h-16 max-w-[1280px] items-center justify-between px-3 sm:px-6"
         >
           {/* Logo */}
           <Link href="/" className="flex items-center" aria-label="Ir al inicio">
@@ -73,8 +73,8 @@ export default function Navbar() {
               width={2035}
               height={773}
               priority
-              style={{ width: "auto", height: 44 }}
-              className="shrink-0"
+              style={{ width: "auto", height: 36 }}
+              className="shrink-0 sm:h-11"
             />
           </Link>
 
@@ -134,17 +134,25 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Hamburger */}
-          <button
-            type="button"
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-expanded={menuOpen}
-            aria-controls="menu-movil"
-            aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
-            className="flex h-10 w-10 items-center justify-center rounded-lg text-neutral-700 transition-colors hover:bg-neutral-100 lg:hidden"
-          >
-            {menuOpen ? <IconX size={22} /> : <IconMenu2 size={22} />}
-          </button>
+          {/* Acciones mobile: PQRS + Hamburger */}
+          <div className="flex items-center gap-2 lg:hidden">
+            <Link
+              href="/pqrs/radicar"
+              className="rounded-full bg-primary-700 px-3 py-1.5 text-xs font-semibold text-white"
+            >
+              PQRS
+            </Link>
+            <button
+              type="button"
+              onClick={() => setMenuOpen(!menuOpen)}
+              aria-expanded={menuOpen}
+              aria-controls="menu-movil"
+              aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-neutral-700 transition-colors hover:bg-neutral-100"
+            >
+              {menuOpen ? <IconX size={20} /> : <IconMenu2 size={20} />}
+            </button>
+          </div>
         </nav>
       </div>
 
@@ -155,7 +163,7 @@ export default function Navbar() {
           menuOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
         }`}
       >
-        <div className="mx-auto max-w-[1280px] px-6 py-4">
+        <div className="mx-auto max-w-[1280px] px-4 py-4">
           {/* Links principales */}
           <ul className="flex flex-col">
             {NAV_MAIN.map((link) => (
@@ -163,7 +171,7 @@ export default function Navbar() {
                 <Link
                   href={link.href}
                   onClick={() => setMenuOpen(false)}
-                  className="flex h-12 items-center text-base font-medium text-neutral-700 transition-colors hover:text-primary-700"
+                  className="flex h-11 items-center text-[15px] font-medium text-neutral-700 transition-colors hover:text-primary-700"
                 >
                   {link.label}
                 </Link>
@@ -193,22 +201,15 @@ export default function Navbar() {
           </ul>
 
           {/* CTA */}
-          <div className="mt-4 flex flex-col gap-2">
+          <div className="mt-4">
             <a
               href="tel:+573042026613"
               onClick={() => setMenuOpen(false)}
-              className="flex h-12 items-center justify-center gap-2 rounded-full border border-neutral-200 text-sm font-medium text-neutral-600"
+              className="flex h-11 items-center justify-center gap-2 rounded-full border border-neutral-200 text-sm font-medium text-neutral-600"
             >
               <IconPhone size={16} />
               304 202 6613
             </a>
-            <Link
-              href="/pqrs/radicar"
-              onClick={() => setMenuOpen(false)}
-              className="flex h-12 items-center justify-center gap-2 rounded-full bg-primary-700 text-sm font-semibold text-white"
-            >
-              Radicar PQRS
-            </Link>
           </div>
         </div>
       </div>
