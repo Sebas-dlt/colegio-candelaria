@@ -12,6 +12,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE_URL}/admisiones`, lastModified: now, changeFrequency: "monthly" as const, priority: 0.8 },
     { url: `${BASE_URL}/atencion-ciudadana`, lastModified: now, changeFrequency: "monthly" as const, priority: 0.7 },
     { url: `${BASE_URL}/calendario`, lastModified: now, changeFrequency: "weekly" as const, priority: 0.7 },
+    { url: `${BASE_URL}/enlaces-unidades-virtuales`, lastModified: now, changeFrequency: "monthly" as const, priority: 0.6 },
     { url: `${BASE_URL}/transparencia`, lastModified: now, changeFrequency: "monthly" as const, priority: 0.6 },
     { url: `${BASE_URL}/pqrs/radicar`, lastModified: now, changeFrequency: "monthly" as const, priority: 0.7 },
     { url: `${BASE_URL}/pqrs/consultar`, lastModified: now, changeFrequency: "monthly" as const, priority: 0.6 },

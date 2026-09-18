@@ -215,25 +215,50 @@ export default function GestionAcademicaPage() {
         </div>
 
         {/* Biblioteca */}
-        <div>
+        <div className="mb-16">
           <h2 className="mb-8 text-center text-3xl font-bold text-neutral-900">
             Biblioteca y Recursos
           </h2>
-          <div className="rounded-2xl border border-neutral-200 bg-white p-8 text-center">
-            <IconLibrary
-              size={48}
-              className="mx-auto mb-4 text-primary-600"
-            />
-            <h3 className="mb-2 text-xl font-bold text-neutral-900">
-              Recursos Digitales
-            </h3>
-            <p className="mb-6 text-neutral-600">
-              Acceda a nuestro catálogo de recursos educativos digitales.
-            </p>
-            <p className="text-sm text-neutral-500">
-              Próximamente podrá acceder a documentos, guías y material de
-              apoyo desde esta sección.
-            </p>
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="rounded-2xl border border-neutral-200 bg-white p-8 text-center">
+              <IconLibrary
+                size={48}
+                className="mx-auto mb-4 text-primary-600"
+              />
+              <h3 className="mb-2 text-xl font-bold text-neutral-900">
+                Recursos Digitales
+              </h3>
+              <p className="mb-6 text-neutral-600">
+                Acceda a nuestro catálogo de recursos educativos digitales.
+              </p>
+              <a
+                href="/enlaces-unidades-virtuales"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary-700 px-6 py-3 text-sm font-semibold text-white hover:bg-primary-800"
+              >
+                Enlaces de Unidades Virtuales
+              </a>
+            </div>
+
+            <div className="rounded-2xl border border-neutral-200 bg-white p-8 text-center">
+              <IconSchool
+                size={48}
+                className="mx-auto mb-4 text-green-600"
+              />
+              <h3 className="mb-2 text-xl font-bold text-neutral-900">
+                Plataforma de Notas
+              </h3>
+              <p className="mb-6 text-neutral-600">
+                Consulte las notas y rendimiento académico de sus hijos.
+              </p>
+              <a
+                href="https://www.sismac.info/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-6 py-3 text-sm font-semibold text-white hover:bg-green-700"
+              >
+                Ingresar a SISMAC
+              </a>
+            </div>
           </div>
         </div>
       </div>
