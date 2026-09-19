@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import Image from "next/image";
@@ -10,10 +10,13 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [cooldown, setCooldown] = useState(0);
   const supabase = createClient();
 
-  const handleMagicLink = async (e: React.FormEvent) => {
+  const handleMagicLink = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading || cooldown > 0) return;
+    
     setLoading(true);
     setMessage(null);
 
@@ -28,10 +31,21 @@ export default function LoginPage() {
       setMessage({ type: "error", text: error.message });
     } else {
       setMessage({ type: "success", text: "Revisa tu correo. Te enviamos un enlace de acceso." });
+      // Cooldown de 60 segundos entre intentos
+      setCooldown(60);
+      const interval = setInterval(() => {
+        setCooldown((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
     }
 
     setLoading(false);
-  };
+  }, [email, loading, cooldown, supabase]);
 
   return (
     <div className="flex min-h-[calc(100vh-200px)] items-center justify-center px-4">
@@ -100,7 +114,7 @@ export default function LoginPage() {
           {/* Botón */}
           <button
             type="submit"
-            disabled={loading || !email}
+            disabled={loading || !email || cooldown > 0}
             className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary-700 px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-primary-800 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? (
@@ -108,6 +122,8 @@ export default function LoginPage() {
                 <IconLoader2 size={18} className="animate-spin" />
                 Enviando...
               </>
+            ) : cooldown > 0 ? (
+              `Espera ${cooldown}s para reenviar`
             ) : (
               "Enviar enlace de acceso"
             )}

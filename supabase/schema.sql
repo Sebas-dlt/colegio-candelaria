@@ -704,9 +704,13 @@ CREATE POLICY "Admins can view preinscripciones files"
     )
   );
 
-CREATE POLICY "Anyone can upload to preinscripciones"
+-- Solo usuarios autenticados pueden subir archivos de preinscripción
+CREATE POLICY "Authenticated users can upload to preinscripciones"
   ON storage.objects FOR INSERT
-  WITH CHECK (bucket_id = 'preinscripciones');
+  WITH CHECK (
+    bucket_id = 'preinscripciones'
+    AND auth.role() = 'authenticated'
+  );
 
 CREATE POLICY "Admins can delete from preinscripciones"
   ON storage.objects FOR DELETE

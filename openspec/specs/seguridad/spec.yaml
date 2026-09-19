@@ -1,0 +1,194 @@
+# OpenSpec: Auditoría y Corrección de Seguridad
+version: "1.0"
+spec_id: seguridad
+title: "Auditoría de Ciberseguridad - Correcciones Críticas"
+status: in_progress
+
+context: |
+  ## Contexto
+  - **Proyecto**: Sitio web institucional IE Nuestra Señora de la Candelaria
+  - **Stack**: Next.js 16, React 19, TypeScript, Tailwind CSS v4
+  - **Servicios**: Vercel (hosting), Supabase (DB/Auth/Storage), Resend (email)
+  - **Tipo**: Institución pública colombiana - requiere estándares de seguridad rigurosos
+  - **Auditoría realizada**: 2026-09-19
+  
+  ## Hallazgos de la auditoría
+  - 3 hallazgos CRÍTICOS
+  - 3 hallazgos ALTOS
+  - 4 hallazgos MEDIOS
+  - Todos deben corregirse antes de producción
+
+requirements:
+  # ============================================================
+  # 1. SECURITY HEADERS
+  # ============================================================
+  - id: SEC-001
+    title: "Security headers en next.config.ts"
+    description: |
+      Configurar headers de seguridad en next.config.ts:
+      - X-Frame-Options: DENY (prevenir clickjacking)
+      - X-Content-Type-Options: nosniff (prevenir MIME sniffing)
+      - Referrer-Policy: strict-origin-when-cross-origin
+      - Permissions-Policy: camera=(), microphone=(), geolocation=()
+      - X-XSS-Protection: 1; mode=block
+      - Strict-Transport-Security: max-age=31536000; includeSubDomains (cuando HTTPS)
+      - Content-Security-Policy: directives básicas
+    priority: critical
+    tags: [security, headers, csp]
+
+  # ============================================================
+  # 2. RATE LIMITING
+  # ============================================================
+  - id: SEC-002
+    title: "Rate limiting con Upstash Redis"
+    description: |
+      Implementar rate limiting usando @upstash/ratelimit + @upstash/redis:
+      - Login: 5 intentos por 10 minutos
+      - PQRS POST: 3 envíos por hora
+      - Email POST: 5 envíos por hora
+      - PQRS consultar: 10 búsquedas por minuto
+      
+      Upstash Redis free tier: 10,000 requests/día
+      Configurar UPSTASH_REDIS_REST_URL y UPSTASH_REDIS_REST_TOKEN en .env
+    priority: critical
+    tags: [security, rate-limit, upstash]
+
+  # ============================================================
+  # 3. API EMAIL AUTH CHECK
+  # ============================================================
+  - id: SEC-003
+    title: "Restringir API email con autenticación"
+    description: |
+      El endpoint POST /api/email actualmente no tiene autenticación.
+      Cualquiera puede enviar emails usando tu servidor.
+      
+      Corrección:
+      - Agregar verificación de Supabase auth
+      - Solo usuarios autenticados con rol admin/rector pueden enviar
+      - O alternativamente: eliminar endpoint público y usar Resend SDK directamente en server-side
+    priority: critical
+    tags: [security, auth, email]
+
+  # ============================================================
+  # 4. CSRF PROTECTION
+  # ============================================================
+  - id: SEC-004
+    title: "CSRF protection en mutaciones"
+    description: |
+      Implementar protección CSRF verificando headers Origin/Referer:
+      - Crear middleware o helper que verifique el header Origin
+      - Aceptar solo requests desde el mismo dominio
+      - Aplicar a todos los endpoints POST/PATCH/DELETE
+      
+      Alternativa: usar SameSite cookies (Supabase ya configura SameSite=Lax)
+    priority: critical
+    tags: [security, csrf]
+
+  # ============================================================
+  # 5. HTML ESCAPING EN EMAILS
+  # ============================================================
+  - id: SEC-005
+    title: "Escapar HTML en templates de email"
+    description: |
+      Los datos de usuario se interpolan directamente en HTML sin escapar.
+      Un atacante podría inyectar HTML/malware en las notificaciones.
+      
+      Corrección:
+      - Crear función escapeHtml() que reemplace <, >, &, ", '
+      - Aplicar a todos los datos de usuario antes de interpolación
+      - Archivos afectados: src/lib/email/templates.ts
+    priority: high
+    tags: [security, xss, email]
+
+  # ============================================================
+  # 6. STORAGE POLICY
+  # ============================================================
+  - id: SEC-006
+    title: "Restringir storage policy preinscripciones"
+    description: |
+      La policy actual permite a CUALQUIERA subir archivos al bucket preinscripciones.
+      
+      Corrección en schema.sql:
+      - Requerir autenticación para uploads
+      - Validar tamaño y tipo de archivo
+      - LIMIT por usuario
+    priority: high
+    tags: [security, storage, rls]
+
+  # ============================================================
+  # 7. SEARCH SANITIZATION
+  # ============================================================
+  - id: SEC-007
+    title: "Sanitizar parámetros de búsqueda"
+    description: |
+      El parámetro search se usa en .or() con ILIKE sin sanitizar.
+      Los caracteres % y _ son wildcards que podrían explotarse.
+      
+      Corrección:
+      - Escapar % y _ en el parámetro search
+      - Usar textSearch() de Supabase en vez de ILIKE
+      - Limitar longitud del parámetro
+    priority: medium
+    tags: [security, injection, search]
+
+  # ============================================================
+  # 8. LOGIN RATE LIMIT
+  # ============================================================
+  - id: SEC-008
+    title: "Rate limit en magic link login"
+    description: |
+      El login envía magic link sin throttling.
+      Un atacante podría spamear emails de login.
+      
+      Corrección:
+      - Rate limiting server-side (5 intentos / 10 min por email)
+      - Rate limiting client-side (deshabilitar botón por 60s)
+      - Configurar en Supabase Dashboard > Auth > Settings
+    priority: medium
+    tags: [security, auth, rate-limit]
+
+  # ============================================================
+  # 9. MIDDLEWARE EXTENSION
+  # ============================================================
+  - id: SEC-009
+    title: "Extender middleware a API routes"
+    description: |
+      Actualmente el middleware solo protege /admin/*.
+      Las API routes implementan auth checks individuales (frágil).
+      
+      Corrección:
+      - Agregar verificación de Origin en middleware para todas las API routes
+      - O crear helper requireAuth() consistente
+      - Logging de intentos no autorizados
+    priority: medium
+    tags: [security, middleware, auth]
+
+non_goals:
+  - WAF (Web Application Firewall) - usar Cloudflare free tier
+  - DDoS protection - Vercel ya incluye
+  - Penetration testing - recomendar para fase 2
+  - Bug bounty program - no aplica
+
+acceptance_criteria:
+  - Todos los endpoints POST/PATCH/DELETE requieren auth
+  - Security headers presentes en todas las respuestas
+  - Rate limiting activo en endpoints sensibles
+  - Sin errores de build o runtime
+  - Lighthouse security score > 90
+  - Auditoría manual: XSS, CSRF, injection probados
+
+tech_decisions:
+  - id: TD-SEC-001
+    title: "Upstash Redis sobre alternatives"
+    rationale: "Free tier 10k requests/día, serverless, sin infraestructura. Alternativas: Vercel KV (Redis) - mismo precio, o middleware custom (no persistente)."
+    status: decided
+
+  - id: TD-SEC-002
+    title: "Origin/Referer validation sobre CSRF tokens"
+    rationale: "Más simple de implementar, sin estado servidor. Supabase SameSite=Lax ya cubre la mayoría de casos."
+    status: decided
+
+  - id: TD-SEC-003
+    title: "escapeHtml sobre DOMPurify"
+    rationale: "Para emails (no browser DOM), escape manual es suficiente. DOMPurify es para HTML en browser."
+    status: decided

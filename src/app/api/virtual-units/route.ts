@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { z } from "zod";
+import { csrfGuard } from "@/lib/csrf";
 
 const virtualUnitSchema = z.object({
   grade: z.string().min(1),
@@ -26,6 +27,10 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  // CSRF protection
+  const csrfError = csrfGuard(request);
+  if (csrfError) return csrfError;
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {

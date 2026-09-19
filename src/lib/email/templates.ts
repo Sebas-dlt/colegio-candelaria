@@ -1,3 +1,5 @@
+import { escapeHtml } from "@/lib/escape";
+
 interface PqrsConfirmationEmail {
   radicado: string;
   type: string;
@@ -44,7 +46,7 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 export function pqrsConfirmationHtml(data: PqrsConfirmationEmail): string {
-  const typeLabel = TYPE_LABELS[data.type] || data.type;
+  const typeLabel = escapeHtml(TYPE_LABELS[data.type] || data.type);
 
   return `
 <!DOCTYPE html>
@@ -74,7 +76,7 @@ export function pqrsConfirmationHtml(data: PqrsConfirmationEmail): string {
           <tr>
             <td style="padding: 32px;">
               <p style="margin: 0 0 16px; color: #374151; font-size: 14px;">
-                ${data.recipientName ? `Estimado/a ${data.recipientName},` : "Estimado/a ciudadano/a,"}
+                ${data.recipientName ? `Estimado/a ${escapeHtml(data.recipientName)},` : "Estimado/a ciudadano/a,"}
               </p>
               
               <p style="margin: 0 0 24px; color: #374151; font-size: 14px; line-height: 1.6;">
@@ -89,7 +91,7 @@ export function pqrsConfirmationHtml(data: PqrsConfirmationEmail): string {
                       Número de Radicado
                     </p>
                     <p style="margin: 0; color: #003d5c; font-size: 24px; font-weight: 700;">
-                      ${data.radicado}
+                      ${escapeHtml(data.radicado)}
                     </p>
                   </td>
                 </tr>
@@ -106,7 +108,7 @@ export function pqrsConfirmationHtml(data: PqrsConfirmationEmail): string {
                 <tr>
                   <td style="padding: 12px 0; border-bottom: 1px solid #e3e7ec;">
                     <p style="margin: 0; color: #6b7280; font-size: 12px; text-transform: uppercase;">Asunto</p>
-                    <p style="margin: 4px 0 0; color: #374151; font-size: 14px; font-weight: 500;">${data.subject}</p>
+                    <p style="margin: 4px 0 0; color: #374151; font-size: 14px; font-weight: 500;">${escapeHtml(data.subject)}</p>
                   </td>
                 </tr>
                 <tr>
@@ -133,7 +135,7 @@ export function pqrsConfirmationHtml(data: PqrsConfirmationEmail): string {
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td align="center" style="padding: 8px 0 24px;">
-                    <a href="${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/pqrs/consultar?radicado=${data.radicado}" 
+                    <a href="${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/pqrs/consultar?radicado=${encodeURIComponent(data.radicado)}" 
                        style="display: inline-block; background-color: #003d5c; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600;">
                       Consultar Estado
                     </a>
@@ -167,7 +169,7 @@ export function pqrsConfirmationHtml(data: PqrsConfirmationEmail): string {
 }
 
 export function pqrsNotificationHtml(data: PqrsNotificationEmail): string {
-  const typeLabel = TYPE_LABELS[data.type] || data.type;
+  const typeLabel = escapeHtml(TYPE_LABELS[data.type] || data.type);
 
   return `
 <!DOCTYPE html>
@@ -204,7 +206,7 @@ export function pqrsNotificationHtml(data: PqrsNotificationEmail): string {
                       Radicado
                     </p>
                     <p style="margin: 0; color: #e65100; font-size: 24px; font-weight: 700;">
-                      ${data.radicado}
+                      ${escapeHtml(data.radicado)}
                     </p>
                   </td>
                 </tr>
@@ -221,14 +223,14 @@ export function pqrsNotificationHtml(data: PqrsNotificationEmail): string {
                 <tr>
                   <td style="padding: 12px 0; border-bottom: 1px solid #e3e7ec;">
                     <p style="margin: 0; color: #6b7280; font-size: 12px; text-transform: uppercase;">Asunto</p>
-                    <p style="margin: 4px 0 0; color: #374151; font-size: 14px; font-weight: 500;">${data.subject}</p>
+                    <p style="margin: 4px 0 0; color: #374151; font-size: 14px; font-weight: 500;">${escapeHtml(data.subject)}</p>
                   </td>
                 </tr>
                 <tr>
                   <td style="padding: 12px 0; border-bottom: 1px solid #e3e7ec;">
                     <p style="margin: 0; color: #6b7280; font-size: 12px; text-transform: uppercase;">Solicitante</p>
                     <p style="margin: 4px 0 0; color: #374151; font-size: 14px; font-weight: 500;">
-                      ${data.fullName || "Anónimo"} ${data.email ? `(${data.email})` : ""} ${data.phone ? `Tel: ${data.phone}` : ""}
+                      ${escapeHtml(data.fullName || "Anónimo")} ${data.email ? `(${escapeHtml(data.email)})` : ""} ${data.phone ? `Tel: ${escapeHtml(data.phone)}` : ""}
                     </p>
                   </td>
                 </tr>
@@ -236,14 +238,14 @@ export function pqrsNotificationHtml(data: PqrsNotificationEmail): string {
                 <tr>
                   <td style="padding: 12px 0; border-bottom: 1px solid #e3e7ec;">
                     <p style="margin: 0; color: #6b7280; font-size: 12px; text-transform: uppercase;">Dependencia</p>
-                    <p style="margin: 4px 0 0; color: #374151; font-size: 14px; font-weight: 500;">${data.dependency}</p>
+                    <p style="margin: 4px 0 0; color: #374151; font-size: 14px; font-weight: 500;">${escapeHtml(data.dependency)}</p>
                   </td>
                 </tr>
                 ` : ""}
                 <tr>
                   <td style="padding: 12px 0;">
                     <p style="margin: 0; color: #6b7280; font-size: 12px; text-transform: uppercase;">Descripción</p>
-                    <p style="margin: 4px 0 0; color: #374151; font-size: 14px; line-height: 1.5;">${data.description}</p>
+                    <p style="margin: 4px 0 0; color: #374151; font-size: 14px; line-height: 1.5;">${escapeHtml(data.description)}</p>
                   </td>
                 </tr>
               </table>
@@ -252,7 +254,7 @@ export function pqrsNotificationHtml(data: PqrsNotificationEmail): string {
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td align="center" style="padding: 8px 0;">
-                    <a href="${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/admin/pqrs/${data.radicado}" 
+                    <a href="${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/admin/pqrs/${encodeURIComponent(data.radicado)}" 
                        style="display: inline-block; background-color: #e65100; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600;">
                       Gestionar PQRS
                     </a>
@@ -279,8 +281,8 @@ export function pqrsNotificationHtml(data: PqrsNotificationEmail): string {
 }
 
 export function pqrsStatusHtml(data: PqrsStatusEmail): string {
-  const typeLabel = TYPE_LABELS[data.type] || data.type;
-  const statusLabel = STATUS_LABELS[data.newStatus] || data.newStatus;
+  const typeLabel = escapeHtml(TYPE_LABELS[data.type] || data.type);
+  const statusLabel = escapeHtml(STATUS_LABELS[data.newStatus] || data.newStatus);
 
   return `
 <!DOCTYPE html>
@@ -301,7 +303,7 @@ export function pqrsStatusHtml(data: PqrsStatusEmail): string {
                 Actualización de su PQRS
               </h1>
               <p style="margin: 8px 0 0; color: #f2c94c; font-size: 14px;">
-                ${data.radicado}
+                ${escapeHtml(data.radicado)}
               </p>
             </td>
           </tr>
@@ -310,7 +312,7 @@ export function pqrsStatusHtml(data: PqrsStatusEmail): string {
           <tr>
             <td style="padding: 32px;">
               <p style="margin: 0 0 16px; color: #374151; font-size: 14px;">
-                ${data.recipientName ? `Estimado/a ${data.recipientName},` : "Estimado/a ciudadano/a,"}
+                ${data.recipientName ? `Estimado/a ${escapeHtml(data.recipientName)},` : "Estimado/a ciudadano/a,"}
               </p>
               
               <p style="margin: 0 0 24px; color: #374151; font-size: 14px; line-height: 1.6;">
@@ -337,7 +339,7 @@ export function pqrsStatusHtml(data: PqrsStatusEmail): string {
                 <tr>
                   <td style="padding: 16px; background-color: #f8f9fa; border-radius: 8px;">
                     <p style="margin: 0 0 8px; color: #6b7280; font-size: 12px; text-transform: uppercase;">Respuesta</p>
-                    <p style="margin: 0; color: #374151; font-size: 14px; line-height: 1.6;">${data.response}</p>
+                    <p style="margin: 0; color: #374151; font-size: 14px; line-height: 1.6;">${escapeHtml(data.response)}</p>
                   </td>
                 </tr>
               </table>
@@ -347,7 +349,7 @@ export function pqrsStatusHtml(data: PqrsStatusEmail): string {
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td align="center" style="padding: 8px 0 24px;">
-                    <a href="${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/pqrs/consultar?radicado=${data.radicado}" 
+                    <a href="${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/pqrs/consultar?radicado=${encodeURIComponent(data.radicado)}" 
                        style="display: inline-block; background-color: #003d5c; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600;">
                       Consultar Detalles
                     </a>

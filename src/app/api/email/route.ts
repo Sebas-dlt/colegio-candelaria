@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
+import { createClient } from "@/lib/supabase/server";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { csrfGuard } from "@/lib/csrf";
 
 let resend: Resend | null = null;
 
@@ -20,6 +23,44 @@ interface EmailRequest {
 
 export async function POST(request: Request) {
   try {
+    // CSRF protection
+    const csrfError = csrfGuard(request);
+    if (csrfError) return csrfError;
+
+    // Rate limiting
+    const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "unknown";
+    const { success: rateLimitOk } = await checkRateLimit("email", ip);
+    if (!rateLimitOk) {
+      return NextResponse.json(
+        { error: "Demasiadas solicitudes. Intenta de nuevo más tarde." },
+        { status: 429 }
+      );
+    }
+
+    // Auth check - solo admin/rector pueden enviar emails
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return NextResponse.json(
+        { error: "No autenticado" },
+        { status: 401 }
+      );
+    }
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    if (!profile || !["admin", "rector"].includes(profile.role)) {
+      return NextResponse.json(
+        { error: "Sin permisos para enviar emails" },
+        { status: 403 }
+      );
+    }
+
     // Verificar que Resend esté configurado
     const resendClient = getResend();
     if (!resendClient) {

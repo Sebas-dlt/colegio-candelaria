@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { z } from "zod";
 import { sendPqrsConfirmation, sendPqrsNotification } from "@/lib/email/send";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { csrfGuard } from "@/lib/csrf";
 
 const pqrsSchema = z.object({
   type: z.enum(["peticion", "queja", "reclamo", "sugerencia", "denuncia"]),
@@ -22,6 +24,20 @@ const pqrsSchema = z.object({
 
 export async function POST(request: Request) {
   try {
+    // CSRF protection
+    const csrfError = csrfGuard(request);
+    if (csrfError) return csrfError;
+
+    // Rate limiting: 3 PQRS por hora por IP
+    const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "unknown";
+    const { success: rateLimitOk, remaining } = await checkRateLimit("pqrs", ip);
+    if (!rateLimitOk) {
+      return NextResponse.json(
+        { error: "Has alcanzado el límite de envío. Intenta de nuevo más tarde." },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const data = pqrsSchema.parse(body);
 
@@ -180,9 +196,18 @@ export async function GET(request: Request) {
       query = query.eq("type", type);
     }
     if (search) {
-      query = query.or(
-        `radicado.ilike.%${search}%,subject.ilike.%${search}%,full_name.ilike.%${search}%`
-      );
+      // Sanitizar parámetros de búsqueda: escapar wildcards de ILIKE
+      const sanitizedSearch = search
+        .replace(/%/g, "\\%")
+        .replace(/_/g, "\\_")
+        .trim()
+        .slice(0, 100); // Limitar longitud
+      
+      if (sanitizedSearch) {
+        query = query.or(
+          `radicado.ilike.%${sanitizedSearch}%,subject.ilike.%${sanitizedSearch}%,full_name.ilike.%${sanitizedSearch}%`
+        );
+      }
     }
 
     // Paginación
